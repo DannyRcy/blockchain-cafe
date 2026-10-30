@@ -1,0 +1,76 @@
+<app-botanica-fondo />
+@if (!auth.sesion()) {
+  <button type="button" class="btn secundario tema-fijo" (click)="tema.alternar()">
+    {{ tema.oscuro() ? 'Modo claro' : 'Modo oscuro' }}
+  </button>
+  <router-outlet />
+} @else {
+  <div class="shell" [class.menu-activo]="menuAbierto">
+    <header class="topbar">
+      <button
+        type="button"
+        class="hamburguesa"
+        (click)="alternarMenu()"
+        [attr.aria-expanded]="menuAbierto"
+        aria-controls="menu-app"
+        [attr.aria-label]="menuAbierto ? 'Cerrar menú' : 'Abrir menú'"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <span class="topbar-marca">Café Chanchamayo</span>
+    </header>
+    @if (menuAbierto) {
+      <button type="button" class="menu-fondo" aria-label="Cerrar menú" (click)="cerrarMenu()"></button>
+    }
+    <aside id="menu-app" class="sidebar" [class.abierto]="menuAbierto">
+      <button type="button" class="btn secundario cerrar-menu" (click)="cerrarMenu()">Cerrar</button>
+      <a routerLink="/inicio" class="marca" (click)="cerrarMenu()">
+        <img class="logo-mark" src="/logo.png" alt="Chanchamayo, café peruano" />
+      </a>
+      <nav class="nav-links">
+        @for (enlace of enlacesVisibles; track enlace.ruta) {
+          <a [routerLink]="enlace.ruta" routerLinkActive="activo" (click)="cerrarMenu()">{{ enlace.icono }} {{ enlace.texto }}</a>
+        }
+      </nav>
+      <div class="nav-foot">
+        <button type="button" (click)="tema.alternar()">
+          {{ tema.oscuro() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro' }}
+        </button>
+        <button type="button" (click)="pedirCierre()">Cerrar sesión</button>
+      </div>
+    </aside>
+    <div class="workspace">
+      <main class="contenido">
+        <router-outlet />
+      </main>
+    </div>
+    @if (auth.avisoRol(); as aviso) {
+      <div class="modal-fondo encima">
+        <article class="modal">
+          @if (aviso === 'otorgado') {
+            <h2>¡Ahora tienes permisos de administrador!</h2>
+            <p>Se te han otorgado permisos de administrador. Para acceder a las nuevas funcionalidades, debes cerrar sesión e iniciar sesión nuevamente.</p>
+          } @else {
+            <h2>Se retiraron tus permisos de administrador</h2>
+            <p>Ya no tienes acceso al modo Administrador. Para volver al modo Productor, debes cerrar sesión e iniciar sesión nuevamente.</p>
+          }
+          <button type="button" class="btn" (click)="auth.cerrarAvisoRol()">Cerrar</button>
+        </article>
+      </div>
+    }
+  </div>
+}
+@if (confirmarCierre) {
+  <div class="modal-fondo encima">
+    <article class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-cierre">
+      <h2 id="titulo-cierre">Cerrar sesión</h2>
+      <p>¿Estás seguro de que deseas cerrar sesión?</p>
+      <div class="acciones">
+        <button type="button" class="btn secundario" (click)="cancelarCierre()">Cancelar</button>
+        <button type="button" class="btn" (click)="confirmarSalida()">Cerrar sesión</button>
+      </div>
+    </article>
+  </div>
+}
